@@ -88,9 +88,10 @@ public class Main {
 
        ByteBuffer buf = ByteBuffer.allocate(8);
 
-       int message_size = 4;
+       int message_size = 0;
        buf.putInt(message_size);
        buf.putInt(correlation_id);
+       System.out.println("Sending correlation id " + correlation_id);
 
        while (buf.hasRemaining()) {
 
