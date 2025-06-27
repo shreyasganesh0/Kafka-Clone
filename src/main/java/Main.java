@@ -92,6 +92,7 @@ public class Main {
        buf.putInt(message_size);
        buf.putInt(correlation_id);
        System.out.println("Sending correlation id " + correlation_id);
+       buf.flip();
 
        while (buf.hasRemaining()) {
 
