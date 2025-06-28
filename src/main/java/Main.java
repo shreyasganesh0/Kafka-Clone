@@ -33,7 +33,7 @@ public class Main {
       ReadableByteChannel read_channel = Channels.newChannel(clientSocket.getInputStream());
 
       KafkaRequest req = parseRequest(read_channel); 
-      writeResponse(write_channel, req.header.correlation_id);
+      writeResponse(write_channel, req.header.correlation_id, req.header.request_api_version);
 
     } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());
@@ -84,13 +84,21 @@ public class Main {
       return request;
   }
 
-  public static void writeResponse(WritableByteChannel write_channel, int correlation_id) throws IOException {
+  public static void writeResponse(WritableByteChannel write_channel, int correlation_id, short request_api_version) throws IOException {
 
        ByteBuffer buf = ByteBuffer.allocate(8);
 
        int message_size = 0;
        buf.putInt(message_size);
        buf.putInt(correlation_id);
+
+       short error_code = 0;
+
+       if (request_api_version != 4 || request_api_version != 0) {
+
+           error_code = 35;
+       }
+       buf.putShort(error_code);
        System.out.println("Sending correlation id " + correlation_id);
        buf.flip();
 
