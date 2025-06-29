@@ -9,6 +9,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.io.EOFException;
+import network.response.*;
  
 
 public class Main {
@@ -86,21 +87,10 @@ public class Main {
 
   public static void writeResponse(WritableByteChannel write_channel, int correlation_id, short request_api_version) throws IOException {
 
-       ByteBuffer buf = ByteBuffer.allocate(12);
 
-       int message_size = 0;
-       buf.putInt(message_size);
-       buf.putInt(correlation_id);
+       ApiVersionResponse resp = new ApiVersionResponse(correlation_id, request_api_version);
 
-       short error_code = 0;
-
-       if (request_api_version != 4 || request_api_version != 0) {
-
-           error_code = 35;
-       }
-       buf.putShort(error_code);
-       System.out.println("Sending correlation id " + correlation_id);
-       buf.flip();
+       ByteBuffer buf = resp.WriteToBuf();
 
        while (buf.hasRemaining()) {
 
