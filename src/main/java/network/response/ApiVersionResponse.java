@@ -18,7 +18,7 @@ public class ApiVersionResponse {
 
     public ByteBuffer WriteToBuf() {
 
-        ByteBuffer buf = ByteBuffer.allocate(this.message_size); 
+        ByteBuffer buf = ByteBuffer.allocate(this.message_size + 4); 
         buf.putInt(this.message_size);
         buf.putInt(this.header_v0);
 
