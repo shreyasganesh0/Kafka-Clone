@@ -17,7 +17,7 @@ public class ApiVersionBody {
         // values are hardcoded for now except error code which will change
         this.error_code = 0;
 
-       if (request_api_version != 4 || request_api_version != 0) {
+       if (request_api_version != 4 && request_api_version != 0) {
 
            this.error_code = 35;
        }
