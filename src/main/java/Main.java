@@ -33,8 +33,10 @@ public class Main {
       WritableByteChannel write_channel = Channels.newChannel(clientSocket.getOutputStream());
       ReadableByteChannel read_channel = Channels.newChannel(clientSocket.getInputStream());
 
-      KafkaRequest req = parseRequest(read_channel); 
-      writeResponse(write_channel, req.header.correlation_id, req.header.request_api_version);
+      while (true) {
+          KafkaRequest req = parseRequest(read_channel);
+          writeResponse(write_channel, req.header.correlation_id, req.header.request_api_version);
+      }
 
     } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());
@@ -54,35 +56,35 @@ public class Main {
 
   public static KafkaRequest parseRequest(ReadableByteChannel read_channel) throws IOException {
 
-      KafkaRequest request = new KafkaRequest();
-      ByteBuffer buf = ByteBuffer.allocate(4);
+          KafkaRequest request = new KafkaRequest();
+          ByteBuffer buf = ByteBuffer.allocate(4);
 
-      while(buf.hasRemaining()) {
+          while(buf.hasRemaining()) {
 
-          int bytes_read = read_channel.read(buf);
-          System.err.println("Read " + bytes_read + " bytes into size buffer");
-          if (bytes_read == -1) throw new EOFException();
-      }
+              int bytes_read = read_channel.read(buf);
+              System.err.println("Read " + bytes_read + " bytes into size buffer");
+              if (bytes_read == -1) throw new EOFException();
+          }
 
-      buf.flip();
+          buf.flip();
 
-      request.message_size = buf.getInt();
+          request.message_size = buf.getInt();
 
-      ByteBuffer header_buf = ByteBuffer.allocate(request.message_size);
+          ByteBuffer header_buf = ByteBuffer.allocate(request.message_size);
 
-      while (header_buf.hasRemaining()) {
+          while (header_buf.hasRemaining()) {
 
-          int bytes_read = read_channel.read(header_buf);
-          System.err.println("Read " + bytes_read + " bytes into size buffer");
-          if (bytes_read == -1) throw new EOFException();
-      }
-      header_buf.flip();
+              int bytes_read = read_channel.read(header_buf);
+              System.err.println("Read " + bytes_read + " bytes into size buffer");
+              if (bytes_read == -1) throw new EOFException();
+          }
+          header_buf.flip();
 
-      KafkaHeaderV2 header = new KafkaHeaderV2(header_buf);
+          KafkaHeaderV2 header = new KafkaHeaderV2(header_buf);
 
-      request.header = header;
+          request.header = header;
 
-      return request;
+          return request;
   }
 
   public static void writeResponse(WritableByteChannel write_channel, int correlation_id, short request_api_version) throws IOException {
