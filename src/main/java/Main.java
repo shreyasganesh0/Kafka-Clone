@@ -10,7 +10,9 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.io.EOFException;
 import network.response.*;
- 
+import java.util.concurrent.*;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Main {
   public static void main(String[] args){
@@ -19,37 +21,42 @@ public class Main {
 
     // Uncomment this block to pass the first stage
 
-    ServerSocket serverSocket = null;
-    Socket clientSocket = null;
+    ExecutorService threadPool = Executors.newFixedThreadPool(3);
+    List<Future<?>> futures = new ArrayList<>();
     int port = 9092;
+
     try {
-      serverSocket = new ServerSocket(port);
-      // Since the tester restarts your program quite often, setting SO_REUSEADDR
-      // ensures that we don't run into 'Address already in use' errors
-      serverSocket.setReuseAddress(true);
-      // Wait for connection from client.
-      clientSocket = serverSocket.accept();
 
-      WritableByteChannel write_channel = Channels.newChannel(clientSocket.getOutputStream());
-      ReadableByteChannel read_channel = Channels.newChannel(clientSocket.getInputStream());
-
-      while (true) {
-          KafkaRequest req = parseRequest(read_channel);
-          writeResponse(write_channel, req.header.correlation_id, req.header.request_api_version);
-      }
+        ServerSocket serverSocket = new ServerSocket(port);
+        while (true) {
+          // Since the tester restarts your program quite often, setting SO_REUSEADDR
+          // ensures that we don't run into 'Address already in use' errors
+          // Wait for connection from client.
+          Socket clientSocket = serverSocket.accept();
+          Future<?> task = threadPool.submit(() -> handleClient(clientSocket));
+          futures.add(task);
+        }
 
     } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());
       e.printStackTrace();
+
     } finally {
+
+      threadPool.shutdown(); //maybe not needed
       try {
-        if (clientSocket != null) {
-          clientSocket.close();
+        if (!threadPool.awaitTermination(5, TimeUnit.SECONDS)) {
+
+            threadPool.shutdownNow();
         }
-      } catch (IOException e) {
+
+      } catch (InterruptedException e) {
+
+        threadPool.shutdownNow();
         System.out.println("IOException: " + e.getMessage());
-      e.printStackTrace();
+        e.printStackTrace();
       }
+
     }
   }
 
@@ -98,6 +105,26 @@ public class Main {
 
            write_channel.write(buf);
        }
+  }
+
+  private static void handleClient(Socket socket) {
+
+      try (Socket clientSocket = socket){
+        WritableByteChannel write_channel; 
+        ReadableByteChannel read_channel;
+        KafkaRequest req;
+
+        write_channel = Channels.newChannel(clientSocket.getOutputStream());
+        read_channel = Channels.newChannel(clientSocket.getInputStream());
+        while (true) {
+              req = parseRequest(read_channel);
+              writeResponse(write_channel, req.header.correlation_id, req.header.request_api_version);
+        }
+      } catch (IOException e) {
+        System.out.println("IOException: " + e.getMessage());
+        e.printStackTrace();
+      }
+
   }
 
 }
