@@ -1,6 +1,7 @@
 package network.response;
 
 import java.nio.ByteBuffer;
+import network.response.ApiKey;
 
 public class ApiVersion4 {
 
@@ -9,11 +10,12 @@ public class ApiVersion4 {
     public short max_sup_version;
     public byte tag_buffer;
 
-    public ApiVersion4() {
+    public ApiVersion4(ApiKey api_key) {
 
-        this.api_key = 18; //hardcoded for apiversion key
-        this.min_sup_version = 0;
-        this.max_sup_version = 4;
+        
+        this.api_key = api_key.GetApiKey(); //hardcoded for apiversion key
+        this.min_sup_version = api_key.GetMinVersion();
+        this.max_sup_version = api_key.GetMaxVersion();
         this.tag_buffer = 0;
     }
 
@@ -29,7 +31,6 @@ public class ApiVersion4 {
         buf.putShort(max_sup_version);
         buf.put(tag_buffer);
     }
+
 }
-
-
 

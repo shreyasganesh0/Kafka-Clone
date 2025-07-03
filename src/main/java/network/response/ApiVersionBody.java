@@ -1,6 +1,7 @@
 package network.response;
 
 import network.response.ApiVersion4;
+import network.response.ApiKey;
 import java.nio.ByteBuffer;
 
 public class ApiVersionBody {
@@ -21,10 +22,14 @@ public class ApiVersionBody {
 
            this.error_code = 35;
        }
-        this.api_version_array_size = 2;
+        this.api_version_array_size = 3;
 
-        this.api_version_array = new ApiVersion4[1];
-        api_version_array[0] = new ApiVersion4();
+        this.api_version_array = new ApiVersion4[2];
+
+        ApiKey api_version = ApiKey.APIVERSION;
+        ApiKey describe_topic_partitions = ApiKey.DESCRIBETOPICPARTITIONS;
+        api_version_array[0] = new ApiVersion4(api_version);
+        api_version_array[1] = new ApiVersion4(describe_topic_partitions);
 
         this.throttle_time = 0;
         this.tag_buffer = 0;
