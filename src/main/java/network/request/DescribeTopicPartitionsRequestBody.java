@@ -1,6 +1,6 @@
 package network.request;
 
-public class DescribeTopicPartitionsBody {
+public class DescribeTopicPartitionsRequestBody {
 
     public int topic_array_length;
     public RequestTopic[] topic_array;
