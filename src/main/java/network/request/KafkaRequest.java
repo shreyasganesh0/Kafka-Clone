@@ -6,6 +6,6 @@ public class KafkaRequest {
 
     public int message_size;
     public KafkaHeaderV2 header;
-    public byte[] body;
+    public RequestType body;
 
 }
