@@ -1,6 +1,7 @@
 package network.request;
 
 import java.nio.ByteBuffer;
+import helper.*;
 
 public class DescribeTopicPartitionsRequestBody implements RequestType {
 
@@ -23,7 +24,6 @@ public class DescribeTopicPartitionsRequestBody implements RequestType {
         this.response_partition_limit = buf.getInt();
         this.cursor = buf.getShort();
         this.tag_buffer = buf.getShort();
-
     }
 }
 

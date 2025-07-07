@@ -1,3 +1,8 @@
+package network.request;
+
+import java.nio.ByteBuffer;
+import helper.*;
+
 public class ApiVersionsRequestBody implements RequestType {
 
     public byte client_id_length;

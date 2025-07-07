@@ -1,3 +1,7 @@
 *.jar
 target/
 .idea/
+.settings/
+.classpath
+.project
+.*

@@ -17,6 +17,6 @@ public class RequestTopic {
 
         buf.get(topic_name);
 
-        this.topic_tag_buffer = 0x00;
+        this.topic_tag_buffer = buf.get();
     }
 }
