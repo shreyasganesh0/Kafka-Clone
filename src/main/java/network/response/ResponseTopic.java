@@ -27,4 +27,22 @@ public class ResponseTopic {
         this.authorized_ops = {0x00, 0x00, 0x0D, 0xF8};
         this.tag_buffer = 0x00;
     }
+
+    public int GetSize() {
+
+        return 2 + 4 + this.topic_name_length + 8 + 1 + 4 + this.partition_array_length + 4 + 1;
+    }
+
+    public void WriteToBuf(ByteBuffer buf) {
+
+        buf.put(this.error_code);
+        buf.putInt(this.topic_name_length);
+        buf.put(this.topic_name);
+        buf.putLong(this.topic_id);
+        buf.put(is_internal);
+        buf.putInt(this.partition_array_length);
+        buf.put(this.partition_array);
+        buf.putInt(this.authorized_ops);
+        buf.put(this.tag_buffer);
+    }
 }

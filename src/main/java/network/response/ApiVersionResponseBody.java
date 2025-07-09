@@ -4,7 +4,7 @@ import network.response.ApiVersion4;
 import network.response.ApiKey;
 import java.nio.ByteBuffer;
 
-public class ApiVersionBody {
+public class ApiVersionResponseBody {
 
     public short error_code;
     public byte api_version_array_size; //this is actually supposed to be var int which will need to be implemented
@@ -13,7 +13,7 @@ public class ApiVersionBody {
     public byte tag_buffer; //not actually a char need to change this imple later
 
 
-    public ApiVersionBody(int request_api_version) {
+    public ApiVersionResponseBody(int request_api_version) {
         
         // values are hardcoded for now except error code which will change
         this.error_code = 0;

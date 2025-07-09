@@ -6,10 +6,11 @@ public class KafkaRequest {
 
     public int message_size;
     public KafkaHeaderV2 header;
-    public RequestType body;
+    public RequestBodyType body;
 
     public KafkaRequest(ByteBuffer buf) {
     
+        buf.rewind();
         this.message_size = buf.getInt();
 
         this.header = new KafkaHeaderV2(buf);

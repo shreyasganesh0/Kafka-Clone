@@ -1,28 +1,32 @@
 package network.response;
 
+import network.request.KafkaRequest;
+import network.response.*;
+
 public class DescribeTopicPartitionsResponse {
 
     public int message_size;
     public HeaderV1 header;
-    public DescribeTopicPartitionsBody body;
+    public DescribeTopicPartitionsResponseBody body;
 
     public DescribeTopicParitionsResponse(KafkaRequest req) {
 
-        this.header = new HeaderV1(correlation_id);
-        this.body = new DescribeTopicParitionsBody();
+        this.header = new HeaderV1(req.header.correlation_id);
+        this.body = new DescribeTopicParitionsBody(req.body);
         this.message_size = header.GetSize() + body.GetSize();
     }
 
-}
+    public ByteBuffer WriteToBuf() {
 
-public class HeaderV1 {
+        ByteBuffer buf = ByteBuffer.allocate(this.message_size + 4);
 
-    public int correlation_id;
-    public byte tag_buffer;
+        buf.putInt(this.message_size);
+        this.header.WriteToBuf(buf);
+        this.body.WriteToBuf(buf);
+        buf.flip();
 
-    public HeaderV1(int correlation_id) {
-
-        this.correlation_id = correlation_id;
-        this.tag_buffer = 0x00;
+        return buf;
     }
+
 }
+

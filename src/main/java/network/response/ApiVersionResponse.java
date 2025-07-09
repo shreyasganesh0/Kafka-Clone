@@ -1,6 +1,7 @@
 package network.response;
 
 import network.response.ApiVersionBody;
+import network.request.KafkaRequest;
 import java.nio.ByteBuffer;
 
 public class ApiVersionResponse {
@@ -9,10 +10,10 @@ public class ApiVersionResponse {
     public int header_v0; 
     public ApiVersionBody body;
 
-    public ApiVersionResponse(int correlation_id, int request_api_version) {
+    public ApiVersionResponse(KafkaRequest req) {
 
-        this.header_v0 = correlation_id;
-        this.body = new ApiVersionBody(request_api_version);
+        this.header_v0 = req.header.correlation_id;
+        this.body = new ApiVersionBody(req.header.request_api_key);
         this.message_size = this.body.GetSize() + 4;
     }
 

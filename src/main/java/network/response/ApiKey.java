@@ -9,7 +9,7 @@ public enum ApiKey {
     public short min_sup_version;
     public short max_sup_version;
 
-    ApiKey(int api_key, int min_version, int max_version) {
+    public ApiKey(int api_key, int min_version, int max_version) {
 
         this.api_key = (short)api_key;
         this.min_sup_version = (short)min_version;

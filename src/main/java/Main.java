@@ -1,18 +1,18 @@
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.io.OutputStream;
-import java.io.InputStream;
-import network.request.*;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.io.EOFException;
-import network.response.*;
-import java.util.concurrent.*;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
+
+import network.request.KafkaHeaderV2;
+import network.request.KafkaRequest;
+import network.response.ApiVersionResponse;
 
 public class Main {
   public static void main(String[] args){
@@ -63,7 +63,6 @@ public class Main {
 
   public static KafkaRequest parseRequest(ReadableByteChannel read_channel) throws IOException {
 
-          KafkaRequest request = new KafkaRequest();
           ByteBuffer buf = ByteBuffer.allocate(4);
 
           while(buf.hasRemaining()) {
@@ -73,11 +72,16 @@ public class Main {
               if (bytes_read == -1) throw new EOFException();
           }
 
+          int buffer_pos = buf.position();
+
           buf.flip();
 
-          request.message_size = buf.getInt();
+          int message_size = buf.getInt() + 4;
+          
 
-          ByteBuffer header_buf = ByteBuffer.allocate(request.message_size);
+          ByteBuffer header_buf = ByteBuffer.allocate(message_size);
+          buf.rewind();
+          header_buf.put(buf);
 
           while (header_buf.hasRemaining()) {
 
@@ -87,19 +91,27 @@ public class Main {
           }
           header_buf.flip();
 
-          KafkaHeaderV2 header = new KafkaHeaderV2(header_buf);
+          KafkaRequest req = new KafkaRequest(header_buf);
 
-          request.header = header;
-
-          return request;
+          return req;
   }
 
-  public static void writeResponse(WritableByteChannel write_channel, int correlation_id, short request_api_version) throws IOException {
+  public static void writeResponse(WritableByteChannel write_channel, 
+          KafkaRequest req) throws IOException {
+    
+     ByteBuffer buf; 
 
+     if (req.header.request_api_key == 18) {
 
-       ApiVersionResponse resp = new ApiVersionResponse(correlation_id, request_api_version);
+       ApiVersionResponse resp = new ApiVersionResponse(req);
+       buf = resp.WriteToBuf();
 
-       ByteBuffer buf = resp.WriteToBuf();
+     } else if (req.header.request_api_key == 75) {
+
+         DescribeTopicPartitionsResponse resp = new DescribeTopicPartitionsResponse(req);
+         buf = resp.WriteToBuf();
+
+     }
 
        while (buf.hasRemaining()) {
 
