@@ -1,34 +1,24 @@
 package helper;
 
-import nio 
+import java.nio.ByteBuffer;
+
 public class Varint {
-
     public int decodeVarint(ByteBuffer buf) {
-
-        int ret_num = 0;
-
-        byte curr_byte = buf.get();
-
-        byte size_mask = 0x7F;
-
-        int pos_mask = 0xFF;
-
-        int curr_byte_pos = 0;
+        int result = 0;
+        int shift = 0; // Number of bit positions to shift for current byte
+        byte currentByte;
         
-        while (curr_byte >> 7 & 0x01) {
-
-            byte temp_rep = curr_byte & size_mask;
-
-            temp_rep = temp_rep << (7 * curr_byte_pos);
-
-            ret_num |= temp_rep;
-
-            curr_byte_pos++;
-
-            curr_byte = buf.get();
-        }
-
-        return ret_num;
+        do {
+            currentByte = buf.get();
+            
+            int dataBits = currentByte & 0x7F;
+            
+            result |= (dataBits << shift);
+            
+            shift += 7;
+        } while ((currentByte & 0x80) != 0);
+        
+        return result;
     }
 
 }

@@ -13,6 +13,7 @@ import java.util.concurrent.*;
 import network.request.KafkaHeaderV2;
 import network.request.KafkaRequest;
 import network.response.ApiVersionResponse;
+import network.response.DescribeTopicPartitionsResponse;
 
 public class Main {
   public static void main(String[] args){
@@ -99,7 +100,7 @@ public class Main {
   public static void writeResponse(WritableByteChannel write_channel, 
           KafkaRequest req) throws IOException {
     
-     ByteBuffer buf; 
+     ByteBuffer buf = null; 
 
      if (req.header.request_api_key == 18) {
 
@@ -113,10 +114,12 @@ public class Main {
 
      }
 
+     if (buf != null) {
        while (buf.hasRemaining()) {
 
            write_channel.write(buf);
        }
+     }
   }
 
   private static void handleClient(Socket socket) {
@@ -130,7 +133,7 @@ public class Main {
         read_channel = Channels.newChannel(clientSocket.getInputStream());
         while (true) {
               req = parseRequest(read_channel);
-              writeResponse(write_channel, req.header.correlation_id, req.header.request_api_version);
+              writeResponse(write_channel, req);
         }
       } catch (IOException e) {
         System.out.println("IOException: " + e.getMessage());
